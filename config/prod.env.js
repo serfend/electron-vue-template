@@ -1,4 +1,4 @@
 module.exports = {
   NODE_ENV: '"production"',
-  BASE_API: '"http://127.0.0.1:25565"'
+  VUE_APP_BASEURL: '"http://192.168.8.8:2333"'
 }
