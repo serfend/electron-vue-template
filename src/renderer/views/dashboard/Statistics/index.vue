@@ -1,7 +1,6 @@
 <template>
   <div id="container" class="container">
-    <div class="container-bg">
-      <dv-loading v-if="!removeLoading" class="loading" :style="{opacity:loading?1:0}">{{ loading }}</dv-loading>
+    <div v-loading="!removeLoading" class="container-bg">
       <div v-if="company" class="statistics-title">
         <h1 class="content">{{ company.name }}休假情况</h1>
         <TimeCenter />
@@ -9,35 +8,37 @@
       <!-- 页面主体部分 -->
       <section v-if="company" class="mainbox">
         <div class="column">
-          <div
-            :title="$refs.vacationApplyStatistics?$refs.vacationApplyStatistics._data.title:'加载中'"
-            class="panel bar"
-          >
+          <Square>
+            <h2
+              v-if="$refs.vacationApplyStatistics"
+              slot="title"
+            >{{ $refs.vacationApplyStatistics._data.title }}</h2>
             <VacationStatisticsBar
+              slot="chart"
               ref="vacationApplyStatistics"
               height="100%"
-              class="dv-boarder-chart"
               :color="color"
               :companies="companies"
               :data="vacationDay"
             />
-          </div>
-          <div
-            :title="$refs.vacationMemberStatisticsPie?$refs.vacationMemberStatisticsPie._data.title:'加载中'"
-            class="panel pie"
-          >
+          </Square>
+          <Square>
+            <h2
+              v-if="$refs.vacationMemberStatisticsPie"
+              slot="title"
+            >{{ $refs.vacationMemberStatisticsPie._data.title }}</h2>
             <VacationStatisticsPie
+              slot="chart"
               ref="vacationMemberStatisticsPie"
               height="100%"
-              class="dv-boarder-chart"
               :color="color"
               :companies="companies"
               :data="vacationMember"
             />
-          </div>
-          <div title="数据区域" class="panel pie">
-            <div class="chart" />
-          </div>
+          </Square>
+          <Square>
+            <h2 slot="title">数据区域</h2>
+          </Square>
         </div>
         <div class="column">
           <MembersCounter />
@@ -46,24 +47,24 @@
             <div class="map1" />
             <div class="map2" />
             <div class="map3" />
-            <VacationMap3D
+            <!-- <VacationMap3D
               v-if="echartGeoComplete"
               ref="vacationMap"
               :height="'100%'"
               :file-load="requestFile"
-            />
+            />-->
           </div>
         </div>
         <div class="column">
-          <div title="数据区域" class="panel bar2">
-            <div class="chart" />
-          </div>
-          <div title="数据区域" class="panel line2">
-            <div class="chart" />
-          </div>
-          <div title="数据区域" class="panel pie2">
-            <div class="chart" />
-          </div>
+          <Square>
+            <h2 slot="title">数据区域</h2>
+          </Square>
+          <Square>
+            <h2 slot="title">数据区域</h2>
+          </Square>
+          <Square>
+            <h2 slot="title">数据区域</h2>
+          </Square>
         </div>
       </section>
       <div v-if="company" style="display:flex;position:fixed;bottom:0;">
@@ -78,6 +79,7 @@
           :file-load="requestFile"
           :complete.sync="echartGeoComplete"
         />
+        <SettingEngine ref="setting" :setting.sync="setting" />
       </div>
     </div>
   </div>
@@ -85,12 +87,15 @@
 
 <script>
 import './js/flexible'
+import Square from './components/Square'
+
 import TimeCenter from './components/NumberCounter/TimeCenter'
 import StatisticsDataDriver from './components/Engine/StatisticsDataDriver'
 import EchartGeoLoader from './components/Engine/EchartGeoLoader'
+import SettingEngine from './components/Engine/SettingEngine'
 
 import MembersCounter from './components/NumberCounter/MembersCounter'
-import VacationMap3D from './components/Geo/VacationMap3D'
+// import VacationMap3D from './components/Geo/VacationMap3D'
 
 import VacationStatisticsBar from './components/Bar/VacationStatisticsBar'
 import VacationStatisticsPie from './components/Bar/VacationStatisticsPie'
@@ -100,11 +105,13 @@ import { getUserCompany } from '@/api/user/userinfo'
 export default {
   name: 'Statistics',
   components: {
+    Square,
     TimeCenter,
     EchartGeoLoader,
     StatisticsDataDriver,
+    SettingEngine,
     MembersCounter,
-    VacationMap3D,
+    // VacationMap3D,
     VacationStatisticsBar,
     VacationStatisticsPie
   },
@@ -114,6 +121,9 @@ export default {
     removeLoading: false,
     company: null,
     data: null,
+    setting: [
+      { key: 'color', value: ['#ff6f4f', '#71ff80', '#3581ff'], label: '配色' }
+    ],
     lastUpdate: new Date(),
     color: ['#ff6f4f', '#71ff80', '#3581ff', '#cc337f', '#71ccb0', '#f581cc']
   }),
@@ -241,7 +251,4 @@ export default {
 
 <style lang="scss" >
 @import './style/index.scss';
-.dv-boarder-chart {
-  padding: 1rem 0.2rem 0 0.2rem;
-}
 </style>
